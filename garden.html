@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#166534">
+<title>Сад и огород</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f1f5f9;
+  color: #0f172a;
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+header {
+  background: #166534;
+  color: #fff;
+  padding: 14px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+header h1 { font-size: 17px; font-weight: 700; flex: 1; }
+.back-btn { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; padding: 0 4px; display: none; }
+.card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+label { display: block; font-size: 11px; color: #64748b; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+input, select, textarea { width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; font-size: 15px; color: #0f172a; background: #fff; margin-bottom: 10px; outline: none; font-family: inherit; }
+input:focus, select:focus, textarea:focus { border-color: #166534; }
+textarea { resize: vertical; min-height: 70px; }
+.btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+.btn:active { opacity: 0.8; }
+.btn-primary { background: #166534; color: #fff; }
+.btn-danger  { background: #dc2626; color: #fff; }
+.btn-cancel  { background: #f1f5f9; color: #64748b; }
+.btn-sm { width: auto; padding: 5px 10px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+.btn-edit { background: #dcfce7; color: #166534; }
+.btn-del  { background: #fee2e2; color: #dc2626; margin-left: 4px; }
+.page { display: none; padding: 12px; }
+.page.active { display: block; }
+.culture-item { display: flex; align-items: center; padding: 12px 14px; background: #fff; border-radius: 12px; margin-bottom: 8px; border: 1px solid #e2e8f0; cursor: pointer; }
+.culture-item:active { background: #f0fdf4; }
+.culture-emoji { font-size: 28px; margin-right: 12px; }
+.culture-info { flex: 1; }
+.culture-name { font-size: 15px; font-weight: 700; }
+.culture-meta { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+.culture-arrow { color: #cbd5e1; font-size: 18px; }
+.culture-header { background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+.culture-header h2 { font-size: 18px; font-weight: 700; color: #166534; }
+.culture-header .meta { font-size: 13px; color: #475569; margin-top: 4px; }
+.event-item { padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; }
+.event-item:last-child { border-bottom: none; }
+.event-icon { font-size: 18px; margin-right: 8px; flex-shrink: 0; margin-top: 2px; }
+.event-info { flex: 1; }
+.event-type { font-size: 13px; font-weight: 600; color: #334155; }
+.event-date { font-size: 11px; color: #94a3b8; }
+.event-note { font-size: 12px; color: #475569; margin-top: 2px; }
+.event-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.event-btn { padding: 10px 8px; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; color: #334155; }
+.event-btn:active { background: #f0fdf4; }
+.event-btn .icon { font-size: 20px; display: block; margin-bottom: 2px; }
+.empty { color: #94a3b8; font-size: 14px; text-align: center; padding: 20px 0; }
+.badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; margin-left: 4px; vertical-align: middle; }
+.badge-active { background: #dcfce7; color: #166534; }
+.badge-done   { background: #f1f5f9; color: #64748b; }
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: flex-end; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal { background: #fff; border-radius: 20px 20px 0 0; padding: 18px 14px 36px; width: 100%; max-height: 90vh; overflow-y: auto; }
+.modal h2 { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+.photo-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; display: none; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: #0f172a; color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 13px; font-weight: 500; z-index: 200; transition: transform 0.3s; white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.hint { font-size: 11px; color: #94a3b8; margin-top: -6px; margin-bottom: 10px; }
+.section-title { font-size: 12px; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e2e8f0; display: flex; z-index: 19; }
+.nav-btn { flex: 1; padding: 10px 4px; font-size: 10px; font-weight: 600; text-align: center; border: none; background: none; color: #64748b; cursor: pointer; }
+.nav-btn.active { color: #166534; }
+.nav-btn .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+</style>
+<link rel="manifest" href="manifest.json">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/garden/sw.js', {scope: '/garden/'});
+  });
+}
+</script>
+</head>
+<body>
+
+<header>
+  <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+  <h1 id="headerTitle">Сад и огород</h1>
+</header>
+
+<div id="page-list" class="page active" style="padding-bottom:70px">
+  <div id="cultureList"></div>
+  <button class="btn btn-primary" onclick="openAddCulture()" style="margin-top:4px">+ Добавить культуру</button>
+</div>
+
+<div id="page-culture" class="page" style="padding-bottom:70px">
+  <div id="cultureCard"></div>
+</div>
+
+<div id="page-journal" class="page" style="padding-bottom:70px">
+  <div class="card">
+    <div class="section-title">Все события</div>
+    <div id="journalList"><div class="empty">Нет событий</div></div>
+  </div>
+</div>
+
+<div id="page-settings" class="page" style="padding-bottom:70px">
+  <div class="card">
+    <div class="section-title">Экспорт / Импорт</div>
+    <p style="font-size:13px;color:#64748b;margin-bottom:12px">Сохраняй базу для резервной копии или переноса на другое устройство.</p>
+    <button class="btn btn-primary" onclick="exportData()" style="margin-bottom:8px">Скачать резервную копию</button>
+    <label>Восстановить из файла</label>
+    <input type="file" id="importFile" accept=".json" style="margin-bottom:8px">
+    <button class="btn" style="background:#0f172a;color:#fff" onclick="importData()">Загрузить</button>
+  </div>
+</div>
+
+<!-- МОДАЛ КУЛЬТУРА -->
+<div class="modal-bg" id="cultureModal" onclick="closeModalBg('cultureModal',event)">
+  <div class="modal">
+    <h2 id="cultureModalTitle">Новая культура</h2>
+    <label>Название</label>
+    <input type="text" id="cName" placeholder="Томат, огурец, яблоня...">
+    <label>Сорт</label>
+    <input type="text" id="cVariety" placeholder="Необязательно">
+    <label>Место посадки</label>
+    <input type="text" id="cPlace" placeholder="Грядка 1, теплица...">
+    <label>Дата посадки</label>
+    <input type="date" id="cDate">
+    <label>Эмодзи</label>
+    <input type="text" id="cEmoji" placeholder="🌱" maxlength="2" style="font-size:24px;text-align:center">
+    <p class="hint">Символ для иконки культуры</p>
+    <label>Статус</label>
+    <select id="cStatus">
+      <option value="active">Активна</option>
+      <option value="done">Завершена</option>
+    </select>
+    <button class="btn btn-primary" onclick="saveCulture()">Сохранить</button>
+    <button class="btn btn-danger" id="cDeleteBtn" style="display:none" onclick="deleteCulture()">Удалить культуру</button>
+    <button class="btn btn-cancel" onclick="closeModal('cultureModal')">Отмена</button>
+  </div>
+</div>
+
+<!-- МОДАЛ СОБЫТИЕ -->
+<div class="modal-bg" id="eventModal" onclick="closeModalBg('eventModal',event)">
+  <div class="modal">
+    <h2 id="eventModalTitle">Новое событие</h2>
+    <label>Тип события</label>
+    <select id="eType">
+      <option value="water">💧 Полив</option>
+      <option value="treat">🧴 Обработка препаратом</option>
+      <option value="harvest">🌾 Сбор урожая</option>
+      <option value="fertilize">🌿 Подкормка</option>
+      <option value="note">📝 Заметка</option>
+    </select>
+    <label>Дата</label>
+    <input type="date" id="eDate">
+    <label>Описание</label>
+    <textarea id="eNote" placeholder="Препарат, доза, количество урожая..."></textarea>
+    <label>Фото (необязательно)</label>
+    <input type="file" id="ePhoto" accept="image/*" onchange="previewPhoto()" style="margin-bottom:6px">
+    <img id="ePhotoPreview" class="photo-preview">
+    <p class="hint">Фото сохраняется на этом устройстве</p>
+    <button class="btn btn-primary" onclick="saveEvent()">Сохранить</button>
+    <button class="btn btn-danger" id="eDeleteBtn" style="display:none" onclick="deleteEvent()">Удалить</button>
+    <button class="btn btn-cancel" onclick="closeModal('eventModal')">Отмена</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="bottom-nav">
+  <button class="nav-btn active" onclick="showMainTab('list',this)">
+    <span class="nav-icon">🌱</span>Культуры
+  </button>
+  <button class="nav-btn" onclick="showMainTab('journal',this)">
+    <span class="nav-icon">📋</span>Журнал
+  </button>
+  <button class="nav-btn" onclick="showMainTab('settings',this)">
+    <span class="nav-icon">⚙️</span>Настройки
+  </button>
+</div>
+
+<script>
+var DB = 'garden_v1';
+var currentCultureId = null;
+var editingCultureId = null;
+var editingEventId   = null;
+var photoData        = null;
+
+var EVENT_ICONS = { water:'💧', treat:'🧴', harvest:'🌾', fertilize:'🌿', note:'📝' };
+var EVENT_NAMES = { water:'Полив', treat:'Обработка', harvest:'Урожай', fertilize:'Подкормка', note:'Заметка' };
+
+function load() {
+  try {
+    var d = JSON.parse(localStorage.getItem(DB));
+    if (!d) d = {};
+    if (!d.cultures) d.cultures = [];
+    return d;
+  } catch(e) { return { cultures:[] }; }
+}
+function save(d) { localStorage.setItem(DB, JSON.stringify(d)); }
+function uid()   { return Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
+
+function fmtDate(s) {
+  if (!s) return '';
+  var p = s.split('-');
+  return p[2]+'.'+p[1]+'.'+p[0];
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeModalBg(id,e) { if (e.target===document.getElementById(id)) closeModal(id); }
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.getElementById('page-'+name).classList.add('active');
+}
+
+// ===== СПИСОК =====
+function renderList() {
+  var d = load();
+  var div = document.getElementById('cultureList');
+  if (d.cultures.length === 0) {
+    div.innerHTML = '<div class="empty">Нет культур. Добавь первую!</div>';
+    return;
+  }
+  div.innerHTML = d.cultures.map(function(c) {
+    var cnt  = (c.events||[]).length;
+    var meta = [];
+    if (c.place) meta.push(c.place);
+    if (c.date)  meta.push('Посадка: '+fmtDate(c.date));
+    if (cnt>0)   meta.push(cnt+' событий');
+    var badge = c.status==='done'
+      ? '<span class="badge badge-done">Завершена</span>'
+      : '<span class="badge badge-active">Активна</span>';
+    return '<div class="culture-item" onclick="openCulture(\''+c.id+'\')">'
+      +'<div class="culture-emoji">'+(c.emoji||'🌱')+'</div>'
+      +'<div class="culture-info">'
+      +'<div class="culture-name">'+c.name+(c.variety?' · '+c.variety:'')+badge+'</div>'
+      +'<div class="culture-meta">'+meta.join(' · ')+'</div>'
+      +'</div><div class="culture-arrow">›</div></div>';
+  }).join('');
+}
+
+// ===== КАРТОЧКА =====
+function openCulture(id) {
+  currentCultureId = id;
+  var d = load();
+  var c = d.cultures.find(function(x){ return x.id===id; });
+  if (!c) return;
+
+  document.getElementById('headerTitle').textContent = c.name;
+  document.getElementById('backBtn').style.display = 'block';
+
+  var events = (c.events||[]).slice().reverse();
+
+  var html = '<div class="culture-header">'
+    +'<div style="font-size:36px;margin-bottom:6px">'+(c.emoji||'🌱')+'</div>'
+    +'<h2>'+c.name+(c.variety?' <span style="font-weight:400;font-size:14px;color:#475569">· '+c.variety+'</span>':'')+'</h2>'
+    +'<div class="meta">';
+  if (c.place) html += '📍 '+c.place+'  ';
+  if (c.date)  html += '📅 Посадка: '+fmtDate(c.date);
+  html += '</div></div>';
+
+  html += '<div class="event-btns">'
+    +'<button class="event-btn" onclick="openAddEvent(\'water\')"><span class="icon">💧</span>Полив</button>'
+    +'<button class="event-btn" onclick="openAddEvent(\'treat\')"><span class="icon">🧴</span>Обработка</button>'
+    +'<button class="event-btn" onclick="openAddEvent(\'harvest\')"><span class="icon">🌾</span>Урожай</button>'
+    +'<button class="event-btn" onclick="openAddEvent(\'fertilize\')"><span class="icon">🌿</span>Подкормка</button>'
+    +'<button class="event-btn" onclick="openAddEvent(\'note\')"><span class="icon">📝</span>Заметка</button>'
+    +'<button class="event-btn" onclick="openEditCulture(\''+c.id+'\')"><span class="icon">✏️</span>Редактировать</button>'
+    +'</div>';
+
+  html += '<div class="card"><div class="section-title">История ('+events.length+')</div>';
+  if (events.length===0) {
+    html += '<div class="empty">Нет событий</div>';
+  } else {
+    html += events.map(function(e) {
+      var photoHtml = e.photo
+        ? '<img src="'+e.photo+'" style="width:100%;max-height:150px;object-fit:cover;border-radius:8px;margin-top:6px">'
+        : '';
+      return '<div class="event-item">'
+        +'<div class="event-icon">'+(EVENT_ICONS[e.type]||'📝')+'</div>'
+        +'<div class="event-info">'
+        +'<div class="event-type">'+(EVENT_NAMES[e.type]||e.type)+'</div>'
+        +'<div class="event-date">'+fmtDate(e.date)+'</div>'
+        +(e.note?'<div class="event-note">'+e.note+'</div>':'')
+        +photoHtml+'</div>'
+        +'<div style="display:flex;flex-shrink:0;margin-left:6px">'
+        +'<button class="btn-sm btn-edit" onclick="openEditEvent(\''+c.id+'\',\''+e.id+'\')">✎</button>'
+        +'<button class="btn-sm btn-del" onclick="delEventDirect(\''+c.id+'\',\''+e.id+'\')">✕</button>'
+        +'</div></div>';
+    }).join('');
+  }
+  html += '</div>';
+
+  document.getElementById('cultureCard').innerHTML = html;
+  showPage('culture');
+}
+
+function goBack() {
+  document.getElementById('headerTitle').textContent = 'Сад и огород';
+  document.getElementById('backBtn').style.display = 'none';
+  currentCultureId = null;
+  showPage('list');
+  renderList();
+}
+
+// ===== КУЛЬТУРА МОДАЛ =====
+function openAddCulture() {
+  editingCultureId = null;
+  document.getElementById('cultureModalTitle').textContent = 'Новая культура';
+  ['cName','cVariety','cPlace','cDate'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('cEmoji').value  = '🌱';
+  document.getElementById('cStatus').value = 'active';
+  document.getElementById('cDeleteBtn').style.display = 'none';
+  document.getElementById('cultureModal').classList.add('open');
+}
+
+function openEditCulture(id) {
+  var c = load().cultures.find(function(x){ return x.id===id; });
+  if (!c) return;
+  editingCultureId = id;
+  document.getElementById('cultureModalTitle').textContent = 'Редактировать';
+  document.getElementById('cName').value    = c.name;
+  document.getElementById('cVariety').value = c.variety||'';
+  document.getElementById('cPlace').value   = c.place||'';
+  document.getElementById('cDate').value    = c.date||'';
+  document.getElementById('cEmoji').value   = c.emoji||'🌱';
+  document.getElementById('cStatus').value  = c.status||'active';
+  document.getElementById('cDeleteBtn').style.display = 'block';
+  document.getElementById('cultureModal').classList.add('open');
+}
+
+function saveCulture() {
+  var name = document.getElementById('cName').value.trim();
+  if (!name) { showToast('Введите название'); return; }
+  var d = load();
+  var obj = {
+    id:      editingCultureId||uid(),
+    name:    name,
+    variety: document.getElementById('cVariety').value.trim(),
+    place:   document.getElementById('cPlace').value.trim(),
+    date:    document.getElementById('cDate').value,
+    emoji:   document.getElementById('cEmoji').value.trim()||'🌱',
+    status:  document.getElementById('cStatus').value,
+    events:  []
+  };
+  if (editingCultureId) {
+    var old = d.cultures.find(function(x){ return x.id===editingCultureId; });
+    if (old) obj.events = old.events||[];
+    d.cultures = d.cultures.map(function(c){ return c.id===editingCultureId?obj:c; });
+    showToast('Сохранено');
+  } else {
+    d.cultures.push(obj);
+    showToast('Добавлено');
+  }
+  save(d);
+  closeModal('cultureModal');
+  if (editingCultureId && currentCultureId===editingCultureId) {
+    openCulture(editingCultureId);
+  } else {
+    renderList();
+  }
+}
+
+function deleteCulture() {
+  if (!confirm('Удалить культуру со всеми событиями?')) return;
+  var d = load();
+  d.cultures = d.cultures.filter(function(c){ return c.id!==editingCultureId; });
+  save(d);
+  closeModal('cultureModal');
+  goBack();
+  showToast('Удалено');
+}
+
+// ===== СОБЫТИЕ МОДАЛ =====
+function openAddEvent(type) {
+  editingEventId = null;
+  document.getElementById('eventModalTitle').textContent = 'Новое событие';
+  document.getElementById('eType').value  = type||'water';
+  document.getElementById('eDate').value  = new Date().toISOString().split('T')[0];
+  document.getElementById('eNote').value  = '';
+  document.getElementById('ePhoto').value = '';
+  document.getElementById('ePhotoPreview').style.display = 'none';
+  document.getElementById('eDeleteBtn').style.display = 'none';
+  photoData = null;
+  document.getElementById('eventModal').classList.add('open');
+}
+
+function openEditEvent(cid, eid) {
+  var d = load();
+  var c = d.cultures.find(function(x){ return x.id===cid; });
+  if (!c) return;
+  var e = (c.events||[]).find(function(x){ return x.id===eid; });
+  if (!e) return;
+  currentCultureId = cid;
+  editingEventId   = eid;
+  document.getElementById('eventModalTitle').textContent = 'Редактировать событие';
+  document.getElementById('eType').value = e.type;
+  document.getElementById('eDate').value = e.date;
+  document.getElementById('eNote').value = e.note||'';
+  document.getElementById('eDeleteBtn').style.display = 'block';
+  if (e.photo) {
+    document.getElementById('ePhotoPreview').src = e.photo;
+    document.getElementById('ePhotoPreview').style.display = 'block';
+    photoData = e.photo;
+  } else {
+    document.getElementById('ePhotoPreview').style.display = 'none';
+    photoData = null;
+  }
+  document.getElementById('eventModal').classList.add('open');
+}
+
+function previewPhoto() {
+  var file = document.getElementById('ePhoto').files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    photoData = e.target.result;
+    document.getElementById('ePhotoPreview').src = photoData;
+    document.getElementById('ePhotoPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveEvent() {
+  if (!currentCultureId) return;
+  var d = load();
+  var c = d.cultures.find(function(x){ return x.id===currentCultureId; });
+  if (!c) { if (!c) c = {}; }
+  if (!c.events) c.events = [];
+  var obj = {
+    id:    editingEventId||uid(),
+    type:  document.getElementById('eType').value,
+    date:  document.getElementById('eDate').value,
+    note:  document.getElementById('eNote').value.trim(),
+    photo: photoData||null
+  };
+  if (editingEventId) {
+    c.events = c.events.map(function(e){ return e.id===editingEventId?obj:e; });
+    showToast('Сохранено');
+  } else {
+    c.events.push(obj);
+    showToast('Добавлено');
+  }
+  c.events.sort(function(a,b){ return a.date.localeCompare(b.date); });
+  save(d);
+  closeModal('eventModal');
+  openCulture(currentCultureId);
+}
+
+function deleteEvent() {
+  if (!confirm('Удалить событие?')) return;
+  var d = load();
+  var c = d.cultures.find(function(x){ return x.id===currentCultureId; });
+  if (!c) return;
+  c.events = (c.events||[]).filter(function(e){ return e.id!==editingEventId; });
+  save(d);
+  closeModal('eventModal');
+  openCulture(currentCultureId);
+  showToast('Удалено');
+}
+
+function delEventDirect(cid, eid) {
+  if (!confirm('Удалить событие?')) return;
+  var d = load();
+  var c = d.cultures.find(function(x){ return x.id===cid; });
+  if (!c) return;
+  c.events = (c.events||[]).filter(function(e){ return e.id!==eid; });
+  save(d);
+  openCulture(cid);
+  showToast('Удалено');
+}
+
+// ===== ЖУРНАЛ =====
+function renderJournal() {
+  var d = load();
+  var all = [];
+  d.cultures.forEach(function(c) {
+    (c.events||[]).forEach(function(e) {
+      all.push({ cname:c.name, emoji:c.emoji||'🌱', cid:c.id, e:e });
+    });
+  });
+  all.sort(function(a,b){ return b.e.date.localeCompare(a.e.date); });
+  var div = document.getElementById('journalList');
+  if (all.length===0) { div.innerHTML='<div class="empty">Нет событий</div>'; return; }
+  div.innerHTML = all.map(function(item) {
+    var e = item.e;
+    return '<div class="event-item">'
+      +'<div class="event-icon">'+(EVENT_ICONS[e.type]||'📝')+'</div>'
+      +'<div class="event-info">'
+      +'<div class="event-type">'+item.emoji+' '+item.cname+' · '+(EVENT_NAMES[e.type]||e.type)+'</div>'
+      +'<div class="event-date">'+fmtDate(e.date)+'</div>'
+      +(e.note?'<div class="event-note">'+e.note+'</div>':'')
+      +'</div></div>';
+  }).join('');
+}
+
+// ===== НАВИГАЦИЯ =====
+function showMainTab(name, btn) {
+  if (name!=='list' && name!=='culture') {
+    document.getElementById('backBtn').style.display = 'none';
+    document.getElementById('headerTitle').textContent = 'Сад и огород';
+    currentCultureId = null;
+  }
+  showPage(name);
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  if (name==='list')    renderList();
+  if (name==='journal') renderJournal();
+}
+
+// ===== ЭКСПОРТ/ИМПОРТ =====
+function exportData() {
+  var d = load();
+  var blob = new Blob([JSON.stringify(d,null,2)], {type:'application/json'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  var dt   = new Date();
+  a.href     = url;
+  a.download = 'garden_'+dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0')+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Файл сохранён');
+}
+
+function importData() {
+  var file = document.getElementById('importFile').files[0];
+  if (!file) { showToast('Выберите файл'); return; }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      if (!data.cultures) throw new Error();
+      if (!confirm('Заменить текущие данные данными из файла?')) return;
+      localStorage.setItem(DB, JSON.stringify(data));
+      renderList();
+      showToast('Импортировано: '+data.cultures.length+' культур');
+    } catch(err) { showToast('Ошибка: файл повреждён'); }
+  };
+  reader.readAsText(file);
+}
+
+renderList();
+</script>
+</body>
+</html>
